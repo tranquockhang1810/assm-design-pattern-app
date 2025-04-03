@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "672515398212",
+    "project_id": "fir-notification-ea9f5",
+    "storage_bucket": "fir-notification-ea9f5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:672515398212:android:42b38bfd11e91909d3fa11",
+        "android_client_info": {
+          "package_name": "com.company.appchat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAtpNzJRXB17kMrGt-jSRAigPN6JLL1iNk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
