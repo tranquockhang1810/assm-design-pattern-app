@@ -22,7 +22,7 @@ import ChatItem from "../component/ChatItem";
 import ChatViewModel from "../viewModel/ChatModel";
 
 const ChatFeature = () => {
-  const { user } = useAuth();
+  const { onLogout, user } = useAuth();
   const { backgroundColor, brandPrimary } = useColor();
   const { loadingChatList, loadMoreChat, fetchChatList, chatList, page } =
     ChatViewModel(defaultMessagesRepo);
@@ -112,6 +112,15 @@ const ChatFeature = () => {
               </TouchableOpacity>
             </View>
 
+            <TouchableOpacity
+              onPress={() => onLogout()}
+              style={{
+                backgroundColor: brandPrimary,
+                padding: 5,
+                borderRadius: 50,
+                marginLeft: 10,
+              }}
+            >
             <Image
               source={{ uri: user?.avatar }}
               style={{
@@ -122,6 +131,7 @@ const ChatFeature = () => {
                 borderWidth: 1,
               }}
             />
+            </TouchableOpacity>
           </View>
         </View>
 

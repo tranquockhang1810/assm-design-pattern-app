@@ -23,6 +23,6 @@ export interface GetMessagesModel {
 }
 
 export interface GetMessagesModelResponse {
-  Chat ?: ChatModel;
-  Messages?: MessageModel[];
+  chat ?: ChatModel;
+  messages?: MessageModel[];
 }

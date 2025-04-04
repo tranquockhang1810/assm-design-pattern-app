@@ -1,98 +1,48 @@
-import {
-  View,
-  Text,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableOpacity,
-  FlatList,
-  Image,
-} from "react-native";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import useColor from "@/src/hooks/useColor";
+import { FlatList, View, Text, Image, TouchableOpacity, Platform, KeyboardAvoidingView } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/src/context/auth/useAuth";
-import { Entypo, Feather, FontAwesome, Ionicons } from "@expo/vector-icons";
-import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import {
-  ActivityIndicator,
-  Form,
-  Input,
-  Modal,
-} from "@ant-design/react-native";
-import { defaultMessagesRepo } from "@/src/api/features/messages/MessagesRepo";
-import { useActionSheet } from "@expo/react-native-action-sheet";
-import Toast from "react-native-toast-message";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { Feather, FontAwesome, Ionicons } from "@expo/vector-icons";
+import { ActivityIndicator, Form, Input } from "@ant-design/react-native";
 import MessViewModel from "../viewModel/MessageModel";
-// // import { useWebSocket } from "@/src/context/socket/useSocket";
-// import UserProfileViewModel from "../../profile/viewModel/UserProfileViewModel";
+import useColor from "@/src/hooks/useColor";
+import { defaultMessagesRepo} from "@/src/api/features/messages/MessagesRepo"; 
 
 const Chat = () => {
   const { backgroundColor, brandPrimary } = useColor();
-  const { user,} = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
-  const { showActionSheetWithOptions } = useActionSheet();
-  const [showMember, setShowMember] = React.useState(false);
-  const [messagerForm] = Form.useForm();
-  const {userId: rawUserId, name: rawName, avatar: rawAvatar} = useLocalSearchParams();
+  const { userId: rawUserId, name: rawName, avatar: rawAvatar } = useLocalSearchParams();
   const userId = typeof rawUserId === "string" ? rawUserId : "";
-  console.log("userId", userId);
   const name = typeof rawName === "string" ? rawName : "";
   const avatar = typeof rawAvatar === "string" ? rawAvatar : "";
-  
-  // const [selectedMessage, setSelectedMessage] = useState<{
-  //   id: string;
-  //   content: string;
-  //   user: { _id: string; family_name: string; name: string };
-  // } | null>(null);
 
-  console.log("avatar", avatar);
-  
-
-  
-
-  const {mess, loadMoreMess, loading, fetchMess, page, setMess} = MessViewModel(defaultMessagesRepo);
-  
-  const [newMessage, setNewMessage] = useState('');
-  
-  console.log("mess", mess);
-  
-  
-  const handleSendMessages = async () => {
-    console.log("send message");
-    
-    
-    }
-
+  const { mess, loadMoreMess, loading, fetchMess, setMess } = MessViewModel(defaultMessagesRepo);
+  const [newMessage, setNewMessage] = useState("");
   const flatListRef = useRef<FlatList>(null);
 
-useEffect(() => {
+  useEffect(() => {
     if (user) {
-      fetchMess(1, userId)
+      fetchMess(1, userId);
     }
-  }
-  , [user]);
+  }, [user]);
 
+  const handleSendMessages = async () => {
+    if (newMessage.trim()) {
+      console.log("Sending message:", newMessage);
+      // Thêm logic gửi tin nhắn ở đây, ví dụ gọi API
+      setNewMessage(""); // Reset input sau khi gửi
+    }
+  };
 
+  const renderFooter = () => (
+    loading ? (
+      <View style={{ paddingVertical: 20 }}>
+        <ActivityIndicator size="large" color={brandPrimary} />
+      </View>
+    ) : null
+  );
 
-  const renderFooter = useCallback(() => {
-    return (
-      <>
-        {loading ? (
-          <View style={{ paddingVertical: 20 }}>
-            <ActivityIndicator size="large" color={brandPrimary} />
-          </View>
-        ) : (
-          <></>
-        )}
-      </>
-    );
-  }, [loading]);
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     return () => {
-  //       setSocketMessages([]); // Xóa tin nhắn khi rời trang
-  //     };
-  //   }, [])
-  // );
   return (
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: "#f9f9f9", width: "100%" }}
@@ -102,127 +52,66 @@ useEffect(() => {
         <View
           style={{
             marginTop: Platform.OS === "ios" ? 30 : 0,
-            height: 50,
+            height: 60,
             paddingHorizontal: 16,
             paddingTop: 16,
             flexDirection: "row",
             alignItems: "center",
-            justifyContent: "space-between",
             backgroundColor: "#fff",
-            zIndex: 10,
             borderBottomColor: "black",
             borderBottomWidth: 1,
           }}
         >
           <TouchableOpacity onPress={() => router.back()}>
-            <Feather name="arrow-left" size={24} color="black" />
-          </TouchableOpacity>
-             <Image
-                        source={{ uri:avatar }}
-                        style={{
-                          width: 50,
-                          height: 50,
-                          borderRadius: 25,
-                          borderColor: "gray",
-                          borderWidth: 1,
-                        }}
-                      />
-          <Text
-            style={{
-              textAlign: "center",
-              fontSize: 18,
-              fontWeight: "bold",
-              flex: 1,
-            }}
-          >
-          {name}
-          </Text>
-        
+              <Ionicons name="chevron-back" size={24} color={brandPrimary} />
+            </TouchableOpacity>
+          <Image
+            source={{ uri: avatar }}
+            style={{ width: 40, height: 40, borderRadius: 25, borderColor: "gray", borderWidth: 1 }}
+          />
+          <Text style={{ textAlign: "center", fontSize: 18, fontWeight: "bold", paddingLeft:5}}>{name}</Text>
         </View>
 
         <View style={{ flex: 1, padding: 10 }}>
-
           <FlatList
             ref={flatListRef}
-            data={mess}
+            data={mess} 
             inverted
-            extraData={mess}
-            keyExtractor={(item, index) =>
-              item._id ? item._id.toString() : index.toString()
-            }
-            renderItem={({ item }) =>
+            keyExtractor={(item) => item._id.toString()}
+            renderItem={({ item }) => (
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: item.sender === user?._id ? "flex-end" : "flex-start",
+                  marginBottom: 5,
+                  alignItems: "center",
+                }}
+              >
                 <View
                   style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent:
-                      item.sender === user?._id ? "flex-end" : "flex-start",
-                    marginBottom: 5,
-                    alignItems: "center",
+                    padding: 10,
+                    backgroundColor: backgroundColor,
+                    borderColor: "#ccc",
+                    borderWidth: 1,
+                    borderRadius: 10,
+                    maxWidth: "80%",
+                    shadowColor: "#000",
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.25,
+                    shadowRadius: 3.84,
                   }}
                 >
-                  <View>
-                    <Text style={{ fontSize: 12, color: "#999" }}>
-                      {item.user.family_name} {item.user.name}
-                    </Text>
-                    <View
-                      style={{
-                        flexDirection:
-                          item.sender === user?._id ? "row-reverse" : "row",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Image
-                        source={{
-                          uri: item.user.avatar_url,
-                        }}
-                        style={{
-                          width: 40,
-                          height: 40,
-                          borderRadius: 25,
-                          backgroundColor: "#e0e0e0",
-                          marginLeft: item.sender === user?._id ? 10 : 0,
-                          marginRight: item.sender === user?._id ? 0 : 10,
-                        }}
-                      />
-                      <View
-                        style={{
-                          padding: 10,
-                          backgroundColor: backgroundColor,
-                          borderColor: "#ccc",
-                          borderWidth: 1,
-                          borderRadius: 10,
-                          alignSelf: "flex-end",
-                          marginBottom: 5,
-                          maxWidth: "80%",
-                          shadowColor: "#000",
-                          shadowOffset: { width: 0, height: 2 },
-                          shadowOpacity: 0.25,
-                          shadowRadius: 3.84,
-                          alignItems:
-                            item.sender === user?._id
-                              ? "flex-end"
-                              : "flex-start",
-                        }}
-                      >
-                      </View>
-                    </View>
-                  </View>
+                  <Text>{item.content}</Text>
                 </View>
-            }
+              </View>
+            )}
             onEndReachedThreshold={0.5}
             ListFooterComponent={renderFooter}
-            // onEndReached={() => loadMoreMess()}
-            removeClippedSubviews={true}
+            onEndReached={() => loadMoreMess(userId)} // Truyền userId vào loadMoreMess
             showsVerticalScrollIndicator={false}
           />
 
-          <Form
-            style={{
-              backgroundColor: "#fff",
-            }}
-            form={messagerForm}
-          >
+          <Form style={{ backgroundColor: "#fff" }}>
             <View
               style={{
                 flexDirection: "row",
@@ -231,28 +120,26 @@ useEffect(() => {
                 paddingBottom: Platform.OS === "ios" ? 10 : 40,
               }}
             >
-              <Form.Item noStyle name="message">
-                <Input
-                  placeholder={"Nhập tin nhắn"}
-                  style={{
-                    flex: 1,
-                    borderColor: "#ccc",
-                    borderWidth: 1,
-                    borderRadius: 5,
-                    padding: 10,
-                    backgroundColor: "#fff",
-                    shadowColor: "#000",
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.25,
-                    shadowRadius: 3.84,
-                    elevation: 5,
-                  }}
-                  value={newMessage}
-                  onChangeText={(text) => setNewMessage(text)}
-                />
-              </Form.Item>
-
-              <View
+              <Input
+                placeholder="Nhập tin nhắn"
+                style={{
+                  flex: 1,
+                  borderColor: "#ccc",
+                  borderWidth: 1,
+                  borderRadius: 5,
+                  padding: 10,
+                  backgroundColor: "#fff",
+                  shadowColor: "#000",
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.25,
+                  shadowRadius: 3.84,
+                  elevation: 5,
+                }}
+                value={newMessage}
+                onChangeText={(text) => setNewMessage(text)}
+              />
+              <TouchableOpacity
+                onPress={handleSendMessages}
                 style={{
                   backgroundColor: "white",
                   borderRadius: 50,
@@ -267,35 +154,12 @@ useEffect(() => {
                   elevation: 5,
                 }}
               >
-                <TouchableOpacity
-                  onPress={() => {
-                    handleSendMessages();
-                  }}
-                >
-                  <FontAwesome name="send-o" size={30} color={brandPrimary} />
-                </TouchableOpacity>
-              </View>
+                <FontAwesome name="send-o" size={30} color={brandPrimary} />
+              </TouchableOpacity>
             </View>
           </Form>
         </View>
       </View>
-      {/* <Modal
-        popup
-        visible={showMember}
-        animationType="slide-up"
-        maskClosable
-        onClose={() => {
-          setShowMember(false);
-        }}
-        title={localStrings.Messages.Member}
-      >
-        <FlatList
-          data={conversationsDetail}
-          renderItem={({ item }) => <MemberMessage conversationDetail={item} />}
-          // keyExtractor={(item, index) => item.user.id?.toString() || index.toString()}
-        />
-      </Modal> */}
-      <Toast />
     </KeyboardAvoidingView>
   );
 };
