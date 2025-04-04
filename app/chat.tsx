@@ -1,5 +1,5 @@
 import React from 'react'
-import Chat from '@/src/components/sreens/chat/view/Chat'
+import Chat from '@/src/components/sreens/mess/view/Mess'
 
 const chat = () => {
   return (

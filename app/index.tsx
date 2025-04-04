@@ -29,7 +29,7 @@ const App: React.FC = () => {
   return (
     <>
       {isAuthenticated ? (
-        <Redirect href="" />
+        <Redirect href="/(tabs)/home" />
       ) : (
         <Redirect href={'/login'} />
       )}

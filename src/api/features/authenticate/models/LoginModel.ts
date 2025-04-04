@@ -4,7 +4,7 @@ export interface LoginRequestModel {
 }
 
 export interface UserModel {
-    id?: string;
+    _id?: string;
     name?: string;
     email?: string;
     phone?: string;
@@ -17,5 +17,5 @@ export interface UserModel {
 
 export interface LoginResponseModel {
     user?: UserModel;
-    access_token?: string;
+    accesstoken?: string;
 }

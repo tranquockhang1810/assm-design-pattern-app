@@ -133,7 +133,7 @@ const LoginFeature = () => {
               <WhiteSpace size="xl" />
             </Form>
             <TouchableOpacity
-              // onPress={() => router.push('/signUp')}
+              onPress={() => router.push('/signup')}
               style={{
                 alignItems: 'center',
                 justifyContent: 'center',
