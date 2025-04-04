@@ -26,3 +26,11 @@ export interface GetMessagesModelResponse {
   chat ?: ChatModel;
   messages?: MessageModel[];
 }
+
+export interface sendMessageModel {
+  chatId?: string;
+  sender?: string;
+  receiver?: string;
+  content?: string;
+  images?: string;
+}

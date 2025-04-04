@@ -5,6 +5,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ActionSheetProvider } from "@expo/react-native-action-sheet";
 import useColor from "@/src/hooks/useColor";
 import { AuthProvider } from "@/src/context/auth/useAuth";
+import { SocketIoProvider } from "@/src/context/socket/useSocket";
 
 export default function RootLayout() {
   const screens = ["index", "login", "signUp", "forgotPassword", "(tabs)"];
@@ -13,6 +14,7 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
+      <SocketIoProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <ActionSheetProvider>
           <View
@@ -44,6 +46,7 @@ export default function RootLayout() {
           </View>
         </ActionSheetProvider>
       </GestureHandlerRootView>
+      </SocketIoProvider>
     </AuthProvider>
   );
 }

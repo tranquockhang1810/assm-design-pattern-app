@@ -4,10 +4,12 @@ import React, { useState, useEffect } from 'react'
 import ChatFeature from '@/src/components/sreens/chat/view/ChatFeature'
 import { router } from 'expo-router'
 import { useAuth } from '@/src/context/auth/useAuth'
+import { useSocket } from '@/src/context/socket/useSocket'
 
 const Index = () => {
   const [fcmToken, setFcmToken] = useState<string | null>(null)
-  const {onLogout} = useAuth()
+  const {user} = useAuth()
+  const {isConnected, setUserOnline} = useSocket()
 
   useEffect(() => {
     const getToken = async () => {
@@ -18,6 +20,16 @@ const Index = () => {
 
     getToken()
   }, [])
+
+  useEffect(() => {
+    if (user && isConnected) {
+      if (user?._id) {
+        setUserOnline(user._id)
+      }
+    }
+    
+  }
+  , [user, isConnected])
 
   return (
     // <View>

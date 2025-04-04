@@ -12,18 +12,15 @@ const MessViewModel = (repo: MessagesRepo) => {
     const fetchMess = async (newPage: number = 1, userId: string) => {
       try {
         setLoading(true);
-        console.log("fetchMess", newPage, userId);
   
         const response = await repo.getMessages({
           userId: userId,
           page: newPage,
           limit: 15,
         });
-        console.log("response", response);
   
         if (!response.error) {
           const newMessages = response?.data?.messages || [];
-          console.log("newMessages", newMessages);
           
           if (newPage === 1) {
             setMess(newMessages); // Đặt lại danh sách tin nhắn khi tải trang đầu tiên

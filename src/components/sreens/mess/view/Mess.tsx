@@ -7,6 +7,8 @@ import { ActivityIndicator, Form, Input } from "@ant-design/react-native";
 import MessViewModel from "../viewModel/MessageModel";
 import useColor from "@/src/hooks/useColor";
 import { defaultMessagesRepo} from "@/src/api/features/messages/MessagesRepo"; 
+import { useSocket } from "@/src/context/socket/useSocket";
+import chat from "@/app/chat";
 
 const Chat = () => {
   const { backgroundColor, brandPrimary } = useColor();
@@ -16,22 +18,38 @@ const Chat = () => {
   const userId = typeof rawUserId === "string" ? rawUserId : "";
   const name = typeof rawName === "string" ? rawName : "";
   const avatar = typeof rawAvatar === "string" ? rawAvatar : "";
-
+  const {socket, isConnected} = useSocket();
   const { mess, loadMoreMess, loading, fetchMess, setMess } = MessViewModel(defaultMessagesRepo);
   const [newMessage, setNewMessage] = useState("");
   const flatListRef = useRef<FlatList>(null);
 
   useEffect(() => {
     if (user) {
-      fetchMess(1, userId);
+      if (mess){
+              fetchMess(1, userId);
+      }
     }
   }, [user]);
 
   const handleSendMessages = async () => {
-    if (newMessage.trim()) {
-      console.log("Sending message:", newMessage);
-      // Thêm logic gửi tin nhắn ở đây, ví dụ gọi API
-      setNewMessage(""); // Reset input sau khi gửi
+    if (newMessage.trim() === "") {
+      return;
+    }
+
+    const chatId = mess.length > 0 ? mess[0]?.chatId : undefined;
+    const message = {
+      chatId: chatId, 
+      sender: user?._id,
+      receiver: userId,
+      content: newMessage,
+    };
+
+    setMess((prevMess) => [message,...prevMess]);
+    setNewMessage("");
+    
+
+    if (socket && isConnected) {
+      socket.emit("send-message", message);
     }
   };
 
@@ -77,7 +95,7 @@ const Chat = () => {
             ref={flatListRef}
             data={mess} 
             inverted
-            keyExtractor={(item) => item._id.toString()}
+            keyExtractor={(item, index) => item._id ? item._id.toString() : index.toString()}
             renderItem={({ item }) => (
               <View
                 style={{
