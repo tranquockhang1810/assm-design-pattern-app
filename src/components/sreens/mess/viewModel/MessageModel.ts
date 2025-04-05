@@ -1,5 +1,5 @@
 import { MessagesRepo } from "@/src/api/features/messages/MessagesRepo";
-import { MessageModel } from "@/src/api/features/messages/models/Messages";
+import { Image, MessageModel } from "@/src/api/features/messages/models/Messages";
 import { useState } from "react";
 
 const MessViewModel = (repo: MessagesRepo) => {
@@ -47,6 +47,24 @@ const MessViewModel = (repo: MessagesRepo) => {
       }
     };
   
+    const uploadImage = async (image: Image[]) => {
+      try {
+        setLoading(true);
+        console.log("Uploading image: ", image);
+        
+        const response = await repo.uploadImage(image);
+        console.log("Upload response: ", response);
+        
+        if (!response.error) {
+          return response.data;
+        }
+      } catch (error: any) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
     return {
       mess,
       loading,
@@ -54,6 +72,7 @@ const MessViewModel = (repo: MessagesRepo) => {
       loadMoreMess,
       page,
       setMess,
+      uploadImage
     };
   };
   

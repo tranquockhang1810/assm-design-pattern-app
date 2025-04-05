@@ -14,7 +14,7 @@ import { useAuth } from "@/src/context/auth/useAuth";
 
 import { ActivityIndicator, ListView, Modal } from "@ant-design/react-native";
 import useColor from "@/src/hooks/useColor";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import Toast from "react-native-toast-message";
 import { defaultMessagesRepo } from "@/src/api/features/messages/MessagesRepo";
@@ -42,11 +42,16 @@ const ChatFeature = () => {
   }, [loadingChatList]);
 
   useEffect(() => {
-    if (user) {
-      fetchChatList(1);
+      fetchChatList(1); 
     }
-  }, [user]);
-
+  , []);
+  
+  useFocusEffect(
+    useCallback(() => {
+      // Tự động fetch khi quay lại màn hình chat
+      fetchChatList(1);
+    }, [])
+  );
   return (
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: "#f9f9f9", width: "100%" }}
@@ -140,7 +145,7 @@ const ChatFeature = () => {
           data={chatList}
           renderItem={({ item }) => <ChatItem chat={item} />}
           keyExtractor={(item, index) =>
-            item?.id?.toString() || index.toString()
+            item?._id?.toString() || index.toString()
           }
           onEndReachedThreshold={0.5}
           ListFooterComponent={renderFooter}

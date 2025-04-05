@@ -2057,7 +2057,7 @@
   dependencies:
     plist "^3.1.0"
 
-"@react-native-firebase/messaging@^21.12.0":
+"@react-native-firebase/messaging@^21.13.0":
   version "21.13.0"
   resolved "https://registry.yarnpkg.com/@react-native-firebase/messaging/-/messaging-21.13.0.tgz#8cc3ba9fc14241f035868d74286e46d8484a8819"
   integrity sha512-ZUc44XRPjVvg0os9TdcOB7GECewJXsEzsder8gJRgCrOL6wn96uAqqOOmzAja64SQeMxvnelbfOtDtwoltLCvA==

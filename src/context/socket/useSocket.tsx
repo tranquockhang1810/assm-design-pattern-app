@@ -1,51 +1,113 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { SocketContextType } from "./socketContextType";
+import { useAuth } from "../auth/useAuth";
+import { Alert, PermissionsAndroid, Platform } from "react-native";
+import messaging from '@react-native-firebase/messaging';
 
+const SOCKET_URL = process.env.EXPO_PUBLIC_SERVER_ENDPOINT;
 const SocketIoContext = createContext<SocketContextType | undefined>(undefined);
 
 export const SocketIoProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const { user } = useAuth();
     const [socket, setSocket] = useState<any>(null);
     const [isConnected, setIsConnected] = useState<boolean>(false);
-    
-    useEffect(() => {
-        const newSocket = io(process.env.EXPO_PUBLIC_SERVER_ENDPOINT! || "http://localhost:8000", {
-          transports: ["websocket"], 
-          reconnection: true,
-        });
-        newSocket.on("connect", () => {
-          console.log("Connected to WebSocket server");
-          setIsConnected(true);
-        });
-    
-        newSocket.on("disconnect", () => {
-          console.log("Disconnected from server");
-          setIsConnected(false);
-        });
-
-        newSocket.on("connect_error", (error) => {
-            console.error("Connection error:", error.message);
-            setIsConnected(false);
-          });
-      
-          setSocket(newSocket);
-      
-          // Cleanup khi component unmount
-          return () => {
-            console.log("Cleaning up socket connection...");
-            newSocket.disconnect();
-          };
-        }, []);
-    
-      // Gửi sự kiện user online
-      const setUserOnline = (userId: string) => {
-        if (socket) {
-          socket.emit("user-online", { userId });
+    const getFcmToken = async () => {
+        try {
+          const token = await messaging().getToken();
+          return token;
+        } catch (error) {
+          console.error('Failed to get FCM token:', error);
+          return null;
         }
       };
     
+      const requestNotificationPermission = async () => {
+        const authStatus = await messaging().requestPermission();
+        const enabled =
+          authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+          authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+    
+        if (!enabled) {
+          Alert.alert("Thông báo", "Bạn cần bật quyền thông báo để nhận tin nhắn.");
+          return false;
+        }
+    
+        // Android 13+ cần thêm POST_NOTIFICATIONS
+        if (Platform.OS === 'android' && Platform.Version >= 33) {
+          const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+          );
+          if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+            Alert.alert("Thông báo", "Bạn cần cho phép thông báo để nhận tin nhắn.");
+            return false;
+          }
+        }
+    
+        return true;
+      };
+    
+      const sendMessage = (message: any) => {
+        if (socket && isConnected) {
+            socket.emit("send-message", message);
+            }
+        }
+
+    const seenMessage = (message: any) => {
+        if (socket && isConnected) {    
+            socket.emit("seen-chat", message);
+            
+        }
+    }
+    
+    useEffect(() => {
+        if (!user?._id) return;
+
+        const connectSocket = async () => {
+          const hasPermission = await requestNotificationPermission();
+          if (!hasPermission) return;
+    
+          const fcmToken = await getFcmToken();
+          if (!fcmToken) return;
+    
+          const newSocket = io(SOCKET_URL, { transports: ["websocket"] });
+    
+          newSocket.on("connect", () => {
+            console.log("✅ Connected to socket");
+            setIsConnected(true);
+            newSocket.emit("user-online", {
+              userId: user._id,
+              fcmToken,
+            });
+          });
+    
+          newSocket.on("disconnect", () => {
+            console.log("❌ Disconnected from socket");
+            setIsConnected(false);
+          });
+    
+          newSocket.on("receive-message", (data: any) => {
+            console.log("📩 Message received:", data);
+            
+          });
+    
+          newSocket.on("socket-error", (data: { error?: { code?: number, message?: string } }) => {
+            console.error("🚨 Socket Error:", data?.error?.message);
+            Alert.alert("Error", data?.error?.message);
+          });
+    
+          setSocket(newSocket);
+        };
+    
+        connectSocket();
+    
+        return () => {
+          if (socket) socket.disconnect();
+        };
+      }, [user?._id]);
+    
     return (
-        <SocketIoContext.Provider value={{socket, isConnected,setUserOnline }}>
+        <SocketIoContext.Provider value={{socket, isConnected, sendMessage, seenMessage}}>
         {children}
         </SocketIoContext.Provider>
     );

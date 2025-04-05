@@ -1,9 +1,10 @@
 export const ApiPath = {
   // Auth
   LOGIN: getApiPath("auth/login"),
-  
   REGISTER : getApiPath("auth/register"),
 
+  // Upload
+  UPLOAD_IMAGES: getApiPath("upload/images"),
   // User
   SEARCH_USER: getApiPath("user/search"),
 

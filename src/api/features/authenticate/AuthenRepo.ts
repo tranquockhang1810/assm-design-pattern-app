@@ -16,8 +16,6 @@ export class AuthenRepo implements IAuthenRepo {
 
     async register(data: LoginRequestModel): Promise<BaseApiResponseModel<UserModel>> {
         const formData = TransferToFormData(data);
-        console.log("formData", formData);
-        
         return client.post(ApiPath.REGISTER, formData, { headers: { "Content-Type": "multipart/form-data" } }
         )
     }

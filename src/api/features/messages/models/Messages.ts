@@ -6,14 +6,14 @@ export interface CreateMessageModel {
   receiver?: string;
 }
 
-
 export interface MessageModel {
- _id?: string;
- chatId?: string;
- sender?: string;
- type?: string;
+  _id?: string;
+  chatId?: string;
+  sender?: string;
+  type?: string;
   content?: string;
   createdAt?: string;
+  images?: string[];
 }
 
 export interface GetMessagesModel {
@@ -23,7 +23,7 @@ export interface GetMessagesModel {
 }
 
 export interface GetMessagesModelResponse {
-  chat ?: ChatModel;
+  chat?: ChatModel;
   messages?: MessageModel[];
 }
 
@@ -32,5 +32,16 @@ export interface sendMessageModel {
   sender?: string;
   receiver?: string;
   content?: string;
-  images?: string;
+  images?: string[];
+}
+
+export interface seenMessageModel {
+  chatId?: string;
+  userId?: string;
+}
+
+export interface Image {
+  uri?: string;
+  type?: string;
+  name?: string;
 }

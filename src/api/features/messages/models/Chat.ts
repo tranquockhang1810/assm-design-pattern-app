@@ -1,5 +1,5 @@
 export interface ChatModel {
-    id?: string;
+    _id?: string;
     participants?: {
         _id?: string;
         name?: string;
@@ -7,6 +7,9 @@ export interface ChatModel {
     }[];
     lastMessage?: string;
     lastMessageAt?: string;
+    lastMessageStatus?: {
+        [key: string]: boolean;
+    };
 }
 
 export interface GetChatList {
