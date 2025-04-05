@@ -22,6 +22,7 @@ import { sendMessageModel } from "@/src/api/features/messages/models/Messages";
 const Chat = () => {
   const { backgroundColor, brandPrimary, lightGray } = useColor();
   const { user } = useAuth();
+  const { sendMessage, newMessageTrigger } = useSocket();
   const router = useRouter();
   const {
     userId: rawUserId,
@@ -31,8 +32,7 @@ const Chat = () => {
   const userId = typeof rawUserId === "string" ? rawUserId : "";
   const name = typeof rawName === "string" ? rawName : "";
   const avatar = typeof rawAvatar === "string" ? rawAvatar : "";
-  const { sendMessage } = useSocket();
-  const { mess, loadMoreMess, loading, fetchMess, setMess, uploadImage } =
+  const { mess, loadMoreMess, loading, fetchMess, setMess, uploadImage, chat} =
     MessViewModel(defaultMessagesRepo);
 
   const [newMessage, setNewMessage] = useState("");
@@ -46,8 +46,10 @@ const Chat = () => {
     if (user && mess) {
       fetchMess(1, userId);
     }
-  }, [user]);
-
+  }, [user, newMessageTrigger]);
+  
+  
+  
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
@@ -82,8 +84,6 @@ const Chat = () => {
     }
   
     setSending(true);
-  
-    // Giới hạn số lượng ảnh tối đa là 5
     const limitedImageFiles = selectedImageFiles.slice(0, 5);
     let uploadedImageUrls: string[] = [];
   
@@ -104,24 +104,19 @@ const Chat = () => {
         setSending(false);
         return;
       }
-      
-      const chatId = mess.length > 0 ? mess[0]?.chatId : undefined;
   
       const message: sendMessageModel = {
-        chatId,
+        chatId: chat?._id,
         sender: user?._id,
         receiver: userId,
         content: newMessage.trim() !== "" ? newMessage : undefined,
-        images: uploadedImageUrls,  // Gắn URL ảnh đã upload vào đây
+        images: uploadedImageUrls,
       };
   
       setMess((prevMess) => [message, ...prevMess]);
       setNewMessage("");
       setSelectedImageFiles([]);
-      console.log("Message to send:", message);
-      
-      // sendMessage(message);
-  
+      sendMessage(message);
       flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
     } catch (err) {
       console.error("Gửi tin nhắn lỗi:", err);
@@ -158,7 +153,7 @@ const Chat = () => {
             borderBottomWidth: 1,
           }}
         >
-          <TouchableOpacity onPress={() => router.back()}>
+          <TouchableOpacity onPress={() => {router.back()}}>
             <Ionicons name="chevron-back" size={24} color={brandPrimary} />
           </TouchableOpacity>
           <Image

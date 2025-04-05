@@ -6,4 +6,5 @@ export interface SocketContextType {
   isConnected: boolean;
   sendMessage: (data: sendMessageModel) => void;
   seenMessage: (data: seenMessageModel) => void;
+  newMessageTrigger: number;
 }

@@ -20,12 +20,14 @@ import Toast from "react-native-toast-message";
 import { defaultMessagesRepo } from "@/src/api/features/messages/MessagesRepo";
 import ChatItem from "../component/ChatItem";
 import ChatViewModel from "../viewModel/ChatModel";
+import { useSocket } from "@/src/context/socket/useSocket";
 
 const ChatFeature = () => {
   const { onLogout, user } = useAuth();
   const { backgroundColor, brandPrimary } = useColor();
   const { loadingChatList, loadMoreChat, fetchChatList, chatList, page } =
     ChatViewModel(defaultMessagesRepo);
+  const {newMessageTrigger} = useSocket();
 
   const renderFooter = useCallback(() => {
     return (
@@ -44,7 +46,7 @@ const ChatFeature = () => {
   useEffect(() => {
       fetchChatList(1); 
     }
-  , []);
+  , [newMessageTrigger]);
   
   useFocusEffect(
     useCallback(() => {
