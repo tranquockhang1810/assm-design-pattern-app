@@ -12,6 +12,7 @@ export const SocketIoProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const { user } = useAuth();
     const [socket, setSocket] = useState<any>(null);
     const [isConnected, setIsConnected] = useState<boolean>(false);
+    const [newMessageTrigger, setNewMessageTrigger] = useState<number>(0);
     const getFcmToken = async () => {
         try {
           const token = await messaging().getToken();
@@ -88,7 +89,7 @@ export const SocketIoProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     
           newSocket.on("receive-message", (data: any) => {
             console.log("📩 Message received:", data);
-            
+            setNewMessageTrigger((prev) => prev + 1);
           });
     
           newSocket.on("socket-error", (data: { error?: { code?: number, message?: string } }) => {
@@ -107,7 +108,7 @@ export const SocketIoProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }, [user?._id]);
     
     return (
-        <SocketIoContext.Provider value={{socket, isConnected, sendMessage, seenMessage}}>
+        <SocketIoContext.Provider value={{socket, isConnected, sendMessage, seenMessage, newMessageTrigger}}>
         {children}
         </SocketIoContext.Provider>
     );

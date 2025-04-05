@@ -19,12 +19,15 @@ import { ActivityIndicator } from "@ant-design/react-native";
 import { defaultSearchRepo } from "@/src/api/features/search/SearchRepository";
 import { useAuth } from "@/src/context/auth/useAuth";
 import Toast from "react-native-toast-message";
+import MessViewModel from "../../mess/viewModel/MessageModel";
+import { defaultMessagesRepo } from "@/src/api/features/messages/MessagesRepo";
 
 const SearchScreen = React.memo(() => {
   const { brandPrimary, backgroundColor } = useColor();
   const [keyword, setKeyword] = useState<string>("");
   const { searchUsers, loading, users, loadMoreUsers } =
     SearchViewModel(defaultSearchRepo);
+  const {mess, fetchMess} = MessViewModel(defaultMessagesRepo);
 
   const renderFooter = useCallback(() => {
     return (
@@ -41,11 +44,8 @@ const SearchScreen = React.memo(() => {
   }, [loading]);
 
   useEffect(() => {
-    //debounce
     const timer = setTimeout(() => {
-      searchUsers(keyword);
-
-      
+      searchUsers(keyword); 
     }, 500);
     return () => clearTimeout(timer);
   }, [keyword]);
@@ -130,10 +130,13 @@ const SearchScreen = React.memo(() => {
                       justifyContent: "space-between",
                       alignItems: "center",
                     }}
-                    onPress={() => {
-                      // router.push(`/(tabs)/user/${item?.id}`);
-                      console.log(item?._id);
-                      
+                    onPress={async() => {
+                      if (item?._id) {
+                        await fetchMess(1, item._id);
+                        router.push(
+                          `/chat?userId=${item._id}&name=${item.name}&avatar=${item.avatar}`
+                        );
+                      }
                     }}
                   >
                     <View

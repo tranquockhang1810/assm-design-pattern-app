@@ -30,7 +30,7 @@ const ChatItem = ({ chat }: { chat: ChatModel }) => {
     <TouchableOpacity
       key={_id}
       onPress={() => {
-        seenMessage({ chatId: chat._id, userId: user?._id });
+        seenMessage({ chatId: chat?._id, userId: user?._id });
         router.push(`/chat?userId=${_id}&name=${name}&avatar=${avatar}`);
       }}
       style={{

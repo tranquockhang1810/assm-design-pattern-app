@@ -1,9 +1,11 @@
 import { MessagesRepo } from "@/src/api/features/messages/MessagesRepo";
+import { ChatModel } from "@/src/api/features/messages/models/Chat";
 import { Image, MessageModel } from "@/src/api/features/messages/models/Messages";
 import { useState } from "react";
 
 const MessViewModel = (repo: MessagesRepo) => {
-    const [mess, setMess] = useState<MessageModel[]>([]); // Sửa thành mảng MessageModel
+    const [mess, setMess] = useState<MessageModel[]>([]); 
+    const [chat, setChat] = useState<ChatModel>();
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
@@ -21,6 +23,7 @@ const MessViewModel = (repo: MessagesRepo) => {
   
         if (!response.error) {
           const newMessages = response?.data?.messages || [];
+          setChat(response?.data?.chat);
           
           if (newPage === 1) {
             setMess(newMessages); // Đặt lại danh sách tin nhắn khi tải trang đầu tiên
@@ -74,7 +77,8 @@ const MessViewModel = (repo: MessagesRepo) => {
       loadMoreMess,
       page,
       setMess,
-      uploadImage
+      uploadImage,
+      chat,
     };
   };
   
