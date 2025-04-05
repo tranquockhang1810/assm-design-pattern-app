@@ -13,11 +13,11 @@ export const getTimeDiff = (date?: string, localString?: any) => {
   const daysDiff = now.diff(postDate, 'day');
 
   if (minutesDiff < 60) {
-    return `${minutesDiff} ${localString?.Public?.MinuteAgo}`;
+    return `${minutesDiff} ${localString?.Public?.MinuteAgo || "minutes ago"}`;
   } else if (hoursDiff < 24) {
-    return `${hoursDiff} ${localString?.Public?.HourAgo}`;
+    return `${hoursDiff} ${localString?.Public?.HourAgo || "hours ago"}`;
   } else {
-    return `${daysDiff} ${localString?.Public?.DayAgo}`;
+    return `${daysDiff} ${localString?.Public?.DayAgo || "days ago"}`;
   }
 };
 

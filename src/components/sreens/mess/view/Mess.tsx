@@ -18,6 +18,7 @@ import { defaultMessagesRepo } from "@/src/api/features/messages/MessagesRepo";
 import { useSocket } from "@/src/context/socket/useSocket";
 import * as ImagePicker from "expo-image-picker";
 import { sendMessageModel } from "@/src/api/features/messages/models/Messages";
+import { convertMediaToFiles } from "@/src/utils/helper/TransferToFormData";
 
 const Chat = () => {
   const { backgroundColor, brandPrimary, lightGray } = useColor();
@@ -89,11 +90,7 @@ const Chat = () => {
   
     try {
       if (limitedImageFiles.length > 0) {
-        const imagesToUpload = limitedImageFiles.map((file) => ({
-          uri: file.uri,
-          type: file.type || "image",
-          name: file.fileName || "unknown",
-        }));
+        const imagesToUpload = await convertMediaToFiles(limitedImageFiles);
   
         const uploadedImages = (await uploadImage(imagesToUpload)) || [];
         uploadedImageUrls = uploadedImages.map((image) => image.uri).filter((uri): uri is string => uri !== undefined) || [];
