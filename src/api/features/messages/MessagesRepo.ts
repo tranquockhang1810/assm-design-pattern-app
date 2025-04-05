@@ -10,27 +10,23 @@ interface IMessagesRepo {
     getMessages: (data: GetMessagesModel) => Promise<BaseApiResponseModel<GetMessagesModelResponse>>;
     getChatList: (data: GetChatList) => Promise<BaseApiResponseModel<ChatModel[]>>;
     uploadImage: (data: Image[]) => Promise<BaseApiResponseModel<Image[]>>;
-      
+
 }
 
 export class MessagesRepo implements IMessagesRepo {
     async getMessages(data: GetMessagesModel): Promise<BaseApiResponseModel<GetMessagesModelResponse>> {
-        return client.get(ApiPath.GET_CHAT_MESSAGES + data?.userId, data );
+        return await client.get(ApiPath.GET_CHAT_MESSAGES + data?.userId, data);
     }
 
     async getChatList(data: GetChatList): Promise<BaseApiResponseModel<ChatModel[]>> {
-        return client.get(ApiPath.GET_CHAT_LIST, data );
-        
+        return await client.get(ApiPath.GET_CHAT_LIST, data);
+
     }
 
     async uploadImage(data: Image[]): Promise<BaseApiResponseModel<Image[]>> {
         const formData = TransferToFormData({ images: data });
-        console.log("formData: ", formData);
-        
         return await client.post(ApiPath.UPLOAD_IMAGES, formData, { headers: { "Content-Type": "multipart/form-data" } })
     }
-
-   
-}                           
+}
 
 export const defaultMessagesRepo = new MessagesRepo();

@@ -22,7 +22,6 @@ import { sendMessageModel } from "@/src/api/features/messages/models/Messages";
 const Chat = () => {
   const { backgroundColor, brandPrimary, lightGray } = useColor();
   const { user } = useAuth();
-  const { sendMessage, newMessageTrigger } = useSocket();
   const router = useRouter();
   const {
     userId: rawUserId,
@@ -32,7 +31,8 @@ const Chat = () => {
   const userId = typeof rawUserId === "string" ? rawUserId : "";
   const name = typeof rawName === "string" ? rawName : "";
   const avatar = typeof rawAvatar === "string" ? rawAvatar : "";
-  const { mess, loadMoreMess, loading, fetchMess, setMess, uploadImage, chat} =
+  const { sendMessage } = useSocket();
+  const { mess, loadMoreMess, loading, fetchMess, setMess, uploadImage } =
     MessViewModel(defaultMessagesRepo);
 
   const [newMessage, setNewMessage] = useState("");
@@ -46,10 +46,8 @@ const Chat = () => {
     if (user && mess) {
       fetchMess(1, userId);
     }
-  }, [user, newMessageTrigger]);
-  
-  
-  
+  }, [user]);
+
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
@@ -84,6 +82,8 @@ const Chat = () => {
     }
   
     setSending(true);
+  
+    // Giới hạn số lượng ảnh tối đa là 5
     const limitedImageFiles = selectedImageFiles.slice(0, 5);
     let uploadedImageUrls: string[] = [];
   
@@ -96,27 +96,27 @@ const Chat = () => {
         }));
   
         const uploadedImages = (await uploadImage(imagesToUpload)) || [];
-        uploadedImageUrls = uploadedImages.map((image) => image.uri).filter((uri): uri is string => uri !== undefined) || [];
+        uploadedImageUrls = uploadedImages.map((img) => img.uri).filter((uri): uri is string => uri !== undefined);
+        console.log("Uploaded image URLs: ", uploadedImageUrls);
       }
   
-      if (limitedImageFiles.length > 0 && uploadedImageUrls.length === 0) {
-        alert("Upload ảnh thất bại, vui lòng thử lại!");
-        setSending(false);
-        return;
-      }
+      const chatId = mess.length > 0 ? mess[0]?.chatId : undefined;
   
       const message: sendMessageModel = {
-        chatId: chat?._id,
+        chatId,
         sender: user?._id,
         receiver: userId,
         content: newMessage.trim() !== "" ? newMessage : undefined,
-        images: uploadedImageUrls,
+        images: uploadedImageUrls,  // Gắn URL ảnh đã upload vào đây
       };
   
       setMess((prevMess) => [message, ...prevMess]);
       setNewMessage("");
       setSelectedImageFiles([]);
-      sendMessage(message);
+      console.log("Message to send:", message);
+      
+      // sendMessage(message);
+  
       flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
     } catch (err) {
       console.error("Gửi tin nhắn lỗi:", err);
@@ -153,7 +153,7 @@ const Chat = () => {
             borderBottomWidth: 1,
           }}
         >
-          <TouchableOpacity onPress={() => {router.back()}}>
+          <TouchableOpacity onPress={() => router.back()}>
             <Ionicons name="chevron-back" size={24} color={brandPrimary} />
           </TouchableOpacity>
           <Image

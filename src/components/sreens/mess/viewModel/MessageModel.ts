@@ -56,7 +56,6 @@ const MessViewModel = (repo: MessagesRepo) => {
         console.log("Uploading image: ", image);
         
         const response = await repo.uploadImage(image);
-        console.log("Upload response: ", response);
         
         if (!response.error) {
           return response.data;
