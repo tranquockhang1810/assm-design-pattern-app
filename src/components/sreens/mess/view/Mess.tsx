@@ -33,7 +33,7 @@ const Chat = () => {
   const userId = typeof rawUserId === "string" ? rawUserId : "";
   const name = typeof rawName === "string" ? rawName : "";
   const avatar = typeof rawAvatar === "string" ? rawAvatar : "";
-  const { mess, loadMoreMess, loading, fetchMess, setMess, uploadImage, chat} =
+  const { mess, loadMoreMess, loading, fetchMess, setMess, uploadImage, chat } =
     MessViewModel(defaultMessagesRepo);
 
   const [newMessage, setNewMessage] = useState("");
@@ -48,9 +48,7 @@ const Chat = () => {
       fetchMess(1, userId);
     }
   }, [user, newMessageTrigger]);
-  
-  
-  
+
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
@@ -61,7 +59,7 @@ const Chat = () => {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
         allowsMultipleSelection: true,
-        quality: 1,
+        quality: 0.5,
       });
 
       if (!result?.canceled && result?.assets) {
@@ -83,25 +81,25 @@ const Chat = () => {
       alert("Vui lòng nhập tin nhắn hoặc chọn hình ảnh/video!");
       return;
     }
-  
+
     setSending(true);
     const limitedImageFiles = selectedImageFiles.slice(0, 5);
     let uploadedImageUrls: string[] = [];
-  
+
     try {
       if (limitedImageFiles.length > 0) {
         const imagesToUpload = await convertMediaToFiles(limitedImageFiles);
-  
+
         const uploadedImages = (await uploadImage(imagesToUpload)) || [];
         uploadedImageUrls = uploadedImages.map((image) => image.uri).filter((uri): uri is string => uri !== undefined) || [];
       }
-  
+
       if (limitedImageFiles.length > 0 && uploadedImageUrls.length === 0) {
         alert("Upload ảnh thất bại, vui lòng thử lại!");
         setSending(false);
         return;
       }
-  
+
       const message: sendMessageModel = {
         chatId: chat?._id,
         sender: user?._id,
@@ -109,7 +107,7 @@ const Chat = () => {
         content: newMessage.trim() !== "" ? newMessage : undefined,
         images: uploadedImageUrls,
       };
-  
+
       setMess((prevMess) => [message, ...prevMess]);
       setNewMessage("");
       setSelectedImageFiles([]);
@@ -121,7 +119,6 @@ const Chat = () => {
       setSending(false);
     }
   };
-  
 
   const renderFooter = () =>
     loading ? (
@@ -150,7 +147,7 @@ const Chat = () => {
             borderBottomWidth: 1,
           }}
         >
-          <TouchableOpacity onPress={() => {router.back()}}>
+          <TouchableOpacity onPress={() => { router.back() }}>
             <Ionicons name="chevron-back" size={24} color={brandPrimary} />
           </TouchableOpacity>
           <Image
@@ -186,28 +183,28 @@ const Chat = () => {
                 }}
               >
                 {item.type === "image" && Array.isArray(item.images) ? (
-                 <View
-                 style={{
-                   flexDirection: "row",
-                   flexWrap: "wrap",
-                   justifyContent: "center",
-                 }}
-               >
-                 {item.images.map((imgUrl: string, index: number) => (
-                   <Image
-                     key={index}
-                     source={{ uri: imgUrl }}
-                     style={{
-                       width: 100,
-                       height: 100,
-                       margin: 5,
-                       borderRadius: 10,
-                       backgroundColor: "#f0f0f0",
-                     }}
-                   />
-                 ))}
-               </View>
-               
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      flexWrap: "wrap",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {item.images.map((imgUrl: string, index: number) => (
+                      <Image
+                        key={index}
+                        source={{ uri: imgUrl }}
+                        style={{
+                          width: 100,
+                          height: 100,
+                          margin: 5,
+                          borderRadius: 10,
+                          backgroundColor: "#f0f0f0",
+                        }}
+                      />
+                    ))}
+                  </View>
+
                 ) : (
                   <View
                     style={{
@@ -274,9 +271,9 @@ const Chat = () => {
           </View>
 
           {/* Input */}
-          <Form style={{ backgroundColor: "#fff" }}>
+          <Form style={{ backgroundColor: "none" }}>
             <View
-              style={{ flexDirection: "row", alignItems: "center", gap: 10 }}
+              style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingBottom: 30 }}
             >
               <TouchableOpacity
                 onPress={pickImage}
