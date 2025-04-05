@@ -99,6 +99,12 @@ const Chat = () => {
         uploadedImageUrls = uploadedImages.map((image) => image.uri).filter((uri): uri is string => uri !== undefined) || [];
       }
   
+      if (limitedImageFiles.length > 0 && uploadedImageUrls.length === 0) {
+        alert("Upload ảnh thất bại, vui lòng thử lại!");
+        setSending(false);
+        return;
+      }
+      
       const chatId = mess.length > 0 ? mess[0]?.chatId : undefined;
   
       const message: sendMessageModel = {
@@ -112,7 +118,9 @@ const Chat = () => {
       setMess((prevMess) => [message, ...prevMess]);
       setNewMessage("");
       setSelectedImageFiles([]);
-      sendMessage(message);
+      console.log("Message to send:", message);
+      
+      // sendMessage(message);
   
       flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
     } catch (err) {

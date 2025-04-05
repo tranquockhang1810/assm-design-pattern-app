@@ -26,8 +26,11 @@ export class MessagesRepo implements IMessagesRepo {
     async uploadImage(data: Image[]): Promise<BaseApiResponseModel<Image[]>> {
          const formData = TransferToFormData(data);
          console.log("formData: ", formData);
+         console.log("API path:", ApiPath.UPLOAD_IMAGES);
+
+          return client.post(ApiPath.UPLOAD_IMAGES, formData, { headers: { "Content-Type": "multipart/form-data" } })
+          
          
-         return client.post(ApiPath.UPLOAD_IMAGES, formData, { headers: { "Content-Type": "multipart/form-data" } })
     }
 
    

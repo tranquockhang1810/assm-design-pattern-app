@@ -59,6 +59,8 @@ const MessViewModel = (repo: MessagesRepo) => {
           return response.data;
         }
       } catch (error: any) {
+        console.log("Error uploading image: ", error);
+        
         console.error(error);
       } finally {
         setLoading(false);

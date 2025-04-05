@@ -22,8 +22,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     adaptiveIcon: {
       foregroundImage: "./assets/images/adaptive-icon.png",
       backgroundColor: "#ffffff"
-
-    }
+    },
+    jsEngine: "hermes",
   },
   web: {
     bundler: "metro",
@@ -58,5 +58,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     eas: {
       projectId: "108c6501-b3b7-4ecf-a9b1-ba1131dff7c6"
     }
-  }
+  },
+  
 });
