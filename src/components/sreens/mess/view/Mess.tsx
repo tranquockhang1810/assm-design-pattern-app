@@ -22,6 +22,7 @@ import { sendMessageModel } from "@/src/api/features/messages/models/Messages";
 const Chat = () => {
   const { backgroundColor, brandPrimary, lightGray } = useColor();
   const { user } = useAuth();
+  const { sendMessage, newMessageTrigger } = useSocket();
   const router = useRouter();
   const {
     userId: rawUserId,
@@ -31,8 +32,7 @@ const Chat = () => {
   const userId = typeof rawUserId === "string" ? rawUserId : "";
   const name = typeof rawName === "string" ? rawName : "";
   const avatar = typeof rawAvatar === "string" ? rawAvatar : "";
-  const { sendMessage } = useSocket();
-  const { mess, loadMoreMess, loading, fetchMess, setMess, uploadImage } =
+  const { mess, loadMoreMess, loading, fetchMess, setMess, uploadImage, chat} =
     MessViewModel(defaultMessagesRepo);
 
   const [newMessage, setNewMessage] = useState("");
@@ -46,8 +46,10 @@ const Chat = () => {
     if (user && mess) {
       fetchMess(1, userId);
     }
-  }, [user]);
-
+  }, [user, newMessageTrigger]);
+  
+  
+  
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
@@ -58,7 +60,7 @@ const Chat = () => {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
         allowsMultipleSelection: true,
-        quality: 1,
+        quality: 0.5,
       });
 
       if (!result?.canceled && result?.assets) {
@@ -82,8 +84,6 @@ const Chat = () => {
     }
   
     setSending(true);
-  
-    // Giới hạn số lượng ảnh tối đa là 5
     const limitedImageFiles = selectedImageFiles.slice(0, 5);
     let uploadedImageUrls: string[] = [];
   
@@ -96,27 +96,27 @@ const Chat = () => {
         }));
   
         const uploadedImages = (await uploadImage(imagesToUpload)) || [];
-        uploadedImageUrls = uploadedImages.map((img) => img.uri).filter((uri): uri is string => uri !== undefined);
-        console.log("Uploaded image URLs: ", uploadedImageUrls);
+        uploadedImageUrls = uploadedImages.map((image) => image.uri).filter((uri): uri is string => uri !== undefined) || [];
       }
   
-      const chatId = mess.length > 0 ? mess[0]?.chatId : undefined;
+      if (limitedImageFiles.length > 0 && uploadedImageUrls.length === 0) {
+        alert("Upload ảnh thất bại, vui lòng thử lại!");
+        setSending(false);
+        return;
+      }
   
       const message: sendMessageModel = {
-        chatId,
+        chatId: chat?._id,
         sender: user?._id,
         receiver: userId,
         content: newMessage.trim() !== "" ? newMessage : undefined,
-        images: uploadedImageUrls,  // Gắn URL ảnh đã upload vào đây
+        images: uploadedImageUrls,
       };
   
       setMess((prevMess) => [message, ...prevMess]);
       setNewMessage("");
       setSelectedImageFiles([]);
-      console.log("Message to send:", message);
-      
-      // sendMessage(message);
-  
+      sendMessage(message);
       flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
     } catch (err) {
       console.error("Gửi tin nhắn lỗi:", err);
@@ -126,12 +126,12 @@ const Chat = () => {
   };
   
 
-  const renderFooter = () =>
-    loading ? (
-      <View style={{ paddingVertical: 20 }}>
-        <ActivityIndicator size="large" color={brandPrimary} />
-      </View>
-    ) : null;
+  // const renderFooter = () =>
+  //   loading ? (
+  //     <View style={{ paddingVertical: 20 }}>
+  //       <ActivityIndicator size="large" color={brandPrimary} />
+  //     </View>
+  //   ) : null;
 
   return (
     <KeyboardAvoidingView
@@ -153,7 +153,7 @@ const Chat = () => {
             borderBottomWidth: 1,
           }}
         >
-          <TouchableOpacity onPress={() => router.back()}>
+          <TouchableOpacity onPress={() => {router.back()}}>
             <Ionicons name="chevron-back" size={24} color={brandPrimary} />
           </TouchableOpacity>
           <Image
@@ -228,7 +228,7 @@ const Chat = () => {
               </View>
             )}
             onEndReachedThreshold={0.5}
-            ListFooterComponent={renderFooter}
+            // ListFooterComponent={renderFooter}
             onEndReached={() => loadMoreMess(userId)}
             showsVerticalScrollIndicator={false}
           />
